@@ -1,9 +1,12 @@
 import { meshCentroid, primaryMeshesInBBox, circleBBox, aggregateCircle, meshCode1km } from "./mesh.js";
 import { INDUSTRIES, VECTOR_WIDTH, summary, density, LEVEL_LABEL } from "./compete.js";
 
-// S4計器: 競合レポートの事前登録フォーム。専用フォーム作成後にURLを入れる（空ならCTAを出さない）。
-// 業種・座標・半径はツール側で観測できるので、フォームでは聞かずプレフィルで運ぶ。
-const FORM_URL = "";
+// S4計器: 競合レポートの事前登録フォーム。
+// 業種とエリアはツール側で観測できるので、ユーザーに入力させずプレフィルで運ぶ。
+// フォームで聞くのは「測れないもの」＝メールアドレスだけ（そこだけが必須）。
+// プレフィル値は送信前に本人に見えるので、間違っていれば直せる。
+const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScZXcYLxgHrnCEQT41zON-gOr7l5y5qYehxeGHTQSZAwJNFqQ/viewform";
+const FORM_ENTRY = { industry: "entry.665653780", area: "entry.846617532" };
 
 const map = L.map("map", { zoomControl: true }).setView([35.6895, 139.6917], 14);
 L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png", {
@@ -26,9 +29,18 @@ for (const ind of INDUSTRIES) {
 }
 els.industry.value = "food";
 
-if (FORM_URL) {
-  els.ctaBox.hidden = false;
-  els.ctaLink.href = FORM_URL;
+if (FORM_URL) els.ctaBox.hidden = false;
+
+// 住所検索に入力があればそれを、無ければ座標を使う。半径も添える。
+function ctaHref(label, r) {
+  if (!FORM_URL || !center) return FORM_URL;
+  const typed = els.addr.value.trim();
+  const where = typed || `北緯${center.lat.toFixed(5)} 東経${center.lng.toFixed(5)}`;
+  const q = new URLSearchParams({
+    [FORM_ENTRY.industry]: label,
+    [FORM_ENTRY.area]: `${where} から半径${(r / 1000).toFixed(1)}km`,
+  });
+  return `${FORM_URL}?${q}`;
 }
 
 const fmt = (n) => Math.round(n).toLocaleString("ja-JP");
@@ -137,6 +149,8 @@ async function recompute() {
 
   els.warnNote.hidden = missing.length === 0;
   if (missing.length) els.warnNote.textContent = "圏内にデータ範囲外の区画があります（海上・国外など）。";
+
+  els.ctaLink.href = ctaHref(label, r);
 
   track({
     industry: id,
