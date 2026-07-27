@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>競合密度マップ — 商圏内に同業が何軒あるか、人口に対して多いか少ないか</title>
+<meta name="description" content="地図に円を描いて業種を選ぶと、圏内の事業所数・1店あたり人口・全国平均との比がその場で出る無料ツール。登録不要・全国対応。2021年経済センサス／2020年国勢調査の500mメッシュ（e-Stat）ベース。">
+<meta property="og:title" content="競合密度マップ — その場所に、その業種の店は多すぎないか">
+<meta property="og:description" content="業種と半径を選ぶだけ。圏内の同業店舗数と1店あたり人口を全国平均と比べて無料で診断（登録不要・全国対応）">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>競合密度マップ <span class="beta">β</span></h1>
+  <div class="search" role="search">
+    <input type="search" id="addr" placeholder="住所・地名で移動（例: 世田谷区三軒茶屋 / 新宿駅）" autocomplete="off">
+    <ul id="addrList" class="addr-list" hidden></ul>
+  </div>
+  <p class="tagline">地図をクリック → 業種を選ぶと、圏内の<strong>同業事業所数と1店あたり人口</strong>が全国平均との比で出ます（2021年経済センサス／2020年国勢調査 500mメッシュ）</p>
+</header>
+<main class="layout">
+  <div id="map" aria-label="地図"></div>
+  <aside class="panel viz-root">
+    <div class="params">
+      <label>業種
+        <select id="industry"></select>
+      </label>
+    </div>
+    <div class="control">
+      <label for="radius">半径 <output id="radiusOut">1.0 km</output></label>
+      <input type="range" id="radius" min="300" max="5000" step="100" value="1000">
+    </div>
+
+    <div id="status" class="status">地図をクリックして中心を指定してください</div>
+
+    <div id="results" hidden>
+      <div class="tiles">
+        <div class="tile hero">
+          <div class="tile-label">1店あたり人口（昼間ベース）</div>
+          <div class="tile-value" id="perStoreDay">–</div>
+        </div>
+        <div class="tile">
+          <div class="tile-label">圏内の<span id="indLabelA">同業</span>事業所数</div>
+          <div class="tile-value sm" id="est">–</div>
+        </div>
+        <div class="tile">
+          <div class="tile-label">1店あたり人口（夜間人口ベース）</div>
+          <div class="tile-value sm" id="perStoreNight">–</div>
+        </div>
+        <div class="tile">
+          <div class="tile-label">平均店舗規模（従業者／店）</div>
+          <div class="tile-value sm" id="avgSize">–</div>
+        </div>
+      </div>
+      <p class="meta" id="verdict"></p>
+      <p class="meta" id="breakdown"></p>
+      <p class="meta" id="densityLine"></p>
+
+      <h2>この数字の読み方</h2>
+      <p class="note" id="daytimeNote">
+        <strong>昼間ベース</strong>の分母は「常住人口 ＋ 圏内で働く人（全産業の従業者数）」です。
+        繁華街やオフィス街は住んでいる人が少なく働く人が多いため、夜間人口だけで割ると
+        実態とかけ離れた値になります（新宿駅1km圏は夜間人口2.4万人に対し飲食店2,367軒＝「10人に1店」）。
+        ただしこれは<strong>代理指標であって昼間人口そのものではありません</strong>。
+        同じ区画に住みかつ働く人を二重に数え、買い物客・観光客は含みません。
+      </p>
+      <p class="note warn" id="warnNote" hidden></p>
+      <p class="meta" id="shareMeta"></p>
+
+      <div class="cta-box" id="ctaBox" hidden>
+        <p class="cta-head">この商圏の競合を、実在の店名まで調べますか？</p>
+        <p>圏内の同業店を実名・評価つきで一覧にした個別レポートを準備中です。ご興味のある方は事前登録へ（無料・約1分）。</p>
+        <a class="cta" id="ctaLink" href="#" target="_blank" rel="noopener">競合レポートの事前登録 →</a>
+      </div>
+    </div>
+
+    <footer class="src">
+      出典: 総務省・経済産業省「令和3年経済センサス‐活動調査」および総務省統計局「令和2年国勢調査」の
+      500mメッシュ統計（e-Stat 統計GIS、世界測地系JGD2011）を加工して作成。
+      <strong>事業所は店舗と一致しません</strong>（本社・事務所・無店舗事業所を含みます）。
+      事業所は2021年6月1日、人口は2020年10月1日時点で、直近の開店・閉店は反映されません。
+      <a href="https://github.com/hatsu-kawabata/compete-map" target="_blank" rel="noopener">GitHub</a>
+    </footer>
+  </aside>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="app.js"></script>
+<script>
+// Vercel Web Analytics(本番ホストのみ)
+if (/\.vercel\.app$/.test(location.hostname)) {
+  var s = document.createElement("script");
+  s.defer = true;
+  s.src = "/_vercel/insights/script.js";
+  document.head.appendChild(s);
+}
+</script>
+</body>
+</html>
