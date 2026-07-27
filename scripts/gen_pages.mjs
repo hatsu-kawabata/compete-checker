@@ -15,7 +15,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const WEB = join(ROOT, "web");
 const DATA = join(WEB, "data");
 const OUT = join(WEB, "eki");
-const BASE = "https://compete-map.vercel.app";
+const BASE = "https://compete-checker.vercel.app";
 const RADIUS = 1000;
 
 const baseline = JSON.parse(readFileSync(join(DATA, "baseline.json"), "utf8"));
@@ -82,7 +82,7 @@ function page(name, en, lat, lon, rows, all) {
 <link rel="stylesheet" href="../../style.css">
 </head>
 <body class="doc">
-<header class="topbar"><h1><a href="../../">競合密度マップ</a></h1></header>
+<header class="topbar"><h1><a href="../../">競合チェッカー</a></h1></header>
 <main class="prose">
 <h1>${esc(name)}駅の競合密度（半径1km）</h1>
 <p>${esc(lead)}</p>
@@ -118,7 +118,7 @@ ${trs}
 出典: 総務省・経済産業省「令和3年経済センサス‐活動調査」および総務省統計局「令和2年国勢調査」の
 500mメッシュ統計（e-Stat 統計GIS、世界測地系JGD2011）を加工して作成。
 事業所は店舗と一致しません（本社・事務所・無店舗事業所を含みます）。
-<a href="../../">競合密度マップ トップ</a>
+<a href="../../">競合チェッカー トップ</a>
 </footer>
 </main>
 </body>
@@ -161,10 +161,10 @@ const items = made.map((s) => `<li><a href="${slug(s.name)}/">${esc(s.name)}駅<
 writeFileSync(join(OUT, "index.html"), `<!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="canonical" href="${BASE}/eki/">
-<title>駅別の競合密度一覧 — 競合密度マップ</title>
+<title>駅別の競合密度一覧 — 競合チェッカー</title>
 <meta name="description" content="全国${made.length}駅について、半径1km圏の業種別事業所数と1店あたり人口を掲載しています。">
 <link rel="stylesheet" href="../style.css"></head>
-<body class="doc"><header class="topbar"><h1><a href="../">競合密度マップ</a></h1></header>
+<body class="doc"><header class="topbar"><h1><a href="../">競合チェッカー</a></h1></header>
 <main class="prose"><h1>駅別の競合密度（半径1km）</h1>
 <p>全国${made.length}駅について、半径1km圏の業種別事業所数・1店あたり人口・全国平均との比を掲載しています。</p>
 <ul class="cols">
@@ -178,7 +178,7 @@ writeFileSync(join(WEB, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
   urls.map((u) => `<url><loc>${u}</loc></url>`).join("\n") + `\n</urlset>\n`);
 writeFileSync(join(WEB, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${BASE}/sitemap.xml\n`);
-writeFileSync(join(WEB, "llms.txt"), `# 競合密度マップ
+writeFileSync(join(WEB, "llms.txt"), `# 競合チェッカー
 
 > 日本国内の任意の地点について、半径Rの円内にある業種別の事業所数と「1店あたり人口」を、
 > 全国平均との比で返す無料ツール。出店検討の競合スクリーニング用。

@@ -1,4 +1,4 @@
-# 競合密度マップ
+# 競合チェッカー
 
 > 日本国内の任意の地点について、半径Rの円内にある業種別の事業所数と「1店あたり人口」を、
 > 全国平均との比で返す無料ツール。出店検討の競合スクリーニング用。
@@ -44,5 +44,5 @@
 
 ## ページ
 
-- https://compete-map.vercel.app/ — 地図で任意地点を指定するツール本体
-- https://compete-map.vercel.app/eki/ — 駅別の一覧（6718駅）
+- https://compete-checker.vercel.app/ — 地図で任意地点を指定するツール本体
+- https://compete-checker.vercel.app/eki/ — 駅別の一覧（6718駅）
