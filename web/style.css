@@ -209,3 +209,35 @@ h2 { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
   min-width: 0;
 }
 .params input:focus, .params select:focus { outline: 2px solid var(--series-1); outline-offset: -1px; }
+
+/* ---- 生成ページ(駅別) ---- */
+body.doc { display: block; height: auto; overflow: auto; background: #fff; }
+body.doc .topbar h1 a { color: inherit; text-decoration: none; }
+.prose {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+  line-height: 1.8;
+}
+.prose h1 { font-size: 1.5rem; margin: 0 0 1rem; line-height: 1.4; }
+.prose h2 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
+.prose p { margin: 0 0 1rem; }
+.prose .cta { display: inline-block; margin: .5rem 0 1.5rem; }
+.prose ul { padding-left: 1.2rem; }
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 1.5rem;
+  font-size: .9rem;
+  display: block;
+  overflow-x: auto;
+}
+table.data caption { text-align: left; color: #667; font-size: .85rem; padding-bottom: .4rem; }
+table.data th, table.data td { border-bottom: 1px solid #e3e6ec; padding: .45rem .6rem; text-align: right; }
+table.data thead th { background: #f5f7fa; text-align: right; white-space: nowrap; }
+table.data th[scope="row"], table.data thead th:first-child { text-align: left; white-space: nowrap; }
+table.data tbody tr:hover { background: #f9fbfd; }
+
+ul.cols { columns: 4 12rem; column-gap: 1.5rem; list-style: none; padding: 0; }
+ul.cols li { break-inside: avoid; margin: 0 0 .3rem; }

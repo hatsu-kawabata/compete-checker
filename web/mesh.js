@@ -15,6 +15,18 @@ export function meshCentroid(code) {
   return [lat + DLAT / 2, lon + DLON / 2];
 }
 
+// 緯度経度 → 3次メッシュ(1km)コード8桁。
+// 計測で座標を送るときの丸め先。需要の地図は1km粒度で足り、生の座標を残す必要がない。
+export function meshCode1km(lat, lon) {
+  const p = Math.floor(lat * 1.5);
+  const q = Math.floor(lon) - 100;
+  const a = Math.floor((lat - p / 1.5) / (5 / 60));
+  const b = Math.floor((lon - (100 + q)) / (7.5 / 60));
+  const c = Math.floor((lat - p / 1.5 - a * (5 / 60)) / (30 / 3600));
+  const d = Math.floor((lon - (100 + q) - b * (7.5 / 60)) / (45 / 3600));
+  return `${p}${String(q).padStart(2, "0")}${a}${b}${c}${d}`;
+}
+
 // bboxに掛かる1次メッシュコード一覧
 export function primaryMeshesInBBox(latMin, latMax, lonMin, lonMax) {
   const out = [];

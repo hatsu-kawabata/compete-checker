@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { meshCentroid, primaryMeshesInBBox, circleBBox, aggregateCircle } from "../web/mesh.js";
+import { meshCentroid, primaryMeshesInBBox, circleBBox, aggregateCircle, meshCode1km } from "../web/mesh.js";
 import {
   INDUSTRIES, VECTOR_WIDTH, POP, HH, estIndex, empIndex,
   readCircle, metrics, level, density, summary, daytimeProxy, CROWDED, SPARSE,
@@ -85,6 +85,21 @@ test("全国基準の1店あたり人口は業種の性格どおりの序列に�
   assert.ok(d.beauty < d.school, `理美容${d.beauty} < 学習塾${d.school}`);
   // 昼間ベースの分母は常住人口より大きいので、基準値も必ず夜間より大きい
   for (const id of Object.keys(d)) assert.ok(d[id] > baseline.night[id], id);
+});
+
+test("計測用の1kmメッシュコードは、その点を含む500mメッシュの上位8桁と一致する", () => {
+  // 実データのコードで往復させる: コード→中心座標→1kmコード が先頭8桁に戻ること
+  const rows = JSON.parse(readFileSync(join(WEB, "data", "5339.json"), "utf8"));
+  let checked = 0;
+  for (const row of rows.slice(0, 500)) {
+    const code = row[0];
+    const [la, lo] = meshCentroid(code);
+    assert.equal(meshCode1km(la, lo), code.slice(0, 8), `code=${code}`);
+    checked++;
+  }
+  assert.ok(checked >= 500);
+  // 送る値に生の座標が含まれないこと(丸めの粒度は1km=8桁)
+  assert.equal(meshCode1km(35.68953, 139.69986).length, 8);
 });
 
 test("メッシュ中心の復元: 9桁コード→緯度経度がセル幅の範囲に収まる", () => {

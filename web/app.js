@@ -1,4 +1,4 @@
-import { meshCentroid, primaryMeshesInBBox, circleBBox, aggregateCircle } from "./mesh.js";
+import { meshCentroid, primaryMeshesInBBox, circleBBox, aggregateCircle, meshCode1km } from "./mesh.js";
 import { INDUSTRIES, VECTOR_WIDTH, summary, density, LEVEL_LABEL } from "./compete.js";
 
 // S4計器: 競合レポートの事前登録フォーム。専用フォーム作成後にURLを入れる（空ならCTAを出さない）。
@@ -138,7 +138,27 @@ async function recompute() {
   els.warnNote.hidden = missing.length === 0;
   if (missing.length) els.warnNote.textContent = "圏内にデータ範囲外の区画があります（海上・国外など）。";
 
+  track({
+    industry: id,
+    radius: r,
+    mesh1km: meshCode1km(center.lat, center.lng),
+    est: s.est,
+  });
   syncUrl();
+}
+
+// ---- 計測: 何がどこで調べられたか ----
+//
+// 業種はユーザーが自分の答えを得るために選ぶ入力なので、聞かずに観測できる。
+// 座標は1kmメッシュに丸めて送る（需要の地図は1km粒度で足り、生の座標を残す必要がない）。
+// 端末には何も書かない＝cookieless。個人を特定する情報は一切送らない。
+// スライダ操作の途中経過を送らないよう、操作が落ち着いてから1回だけ送る。
+let trackTimer = null;
+function track(payload) {
+  clearTimeout(trackTimer);
+  trackTimer = setTimeout(() => {
+    window.va?.track?.("circle", payload);
+  }, 1500);
 }
 
 function syncUrl() {
